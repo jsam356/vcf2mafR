@@ -78,8 +78,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
   df_vcf[["variant_id"]] <- paste0(df_vcf[["chr"]], ":", df_vcf[["pos"]], " ", df_vcf[["ref"]], ">", df_vcf[["alt"]])
 
   # Add a column differentiating Tumours from Normals
-  #df_vcf <- df_vcf |>
-    dplyr::mutate(sample_type = dplyr::case_when(
+  df_vcf <- df_vcf |> dplyr::mutate(sample_type = dplyr::case_when(
       sample == vcf_tumor_id ~ "Somatic",
       sample == vcf_normal_id ~ "Normal",
       .default = "ERROR"
@@ -100,8 +99,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
     #dplyr::select(Matched_Norm_Sample_Barcode, Match_Norm_Seq_Allele1, Match_Norm_Seq_Allele2)
 
   # Remove normal variants (technically we should pull out the normal sample ref/alt but in somatic MAFs we remove those anyway for privacy reasons, so we'll ignore
-  df_vcf_somatic <- df_vcf |>
-    dplyr::filter(sample_type == "Somatic")
+  df_vcf_somatic <- df_vcf |> dplyr::filter(sample_type == "Somatic")
     #dplyr::rename("Tumor_Seq_Allele1" = ref, "Tumor_Seq_Allele2" = alt, "Tumor_Sample_Barcode" = sample)
 
   # Add Tumor and Normal IDs
@@ -167,10 +165,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
 
     # === Step 1: Find affected gene === #
     # Find the highest priority effect with a gene symbol i.e. the worst affected gene
-    maf_gene = df |>
-      dplyr::filter(has_gene_symbol) |>
-      dplyr::pull(SYMBOL) |>
-      utils::head(n=1)
+    maf_gene = df |> dplyr::filter(has_gene_symbol) |> dplyr::pull(SYMBOL) |> utils::head(n=1)
 
     # === Step 1: Choose which gene transcript to use === #
 
@@ -178,10 +173,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
     # <not implemented yet: see custom-enst option of vcf2maf.pl for implementation>
 
     # If that gene has no user-preferred isoform, then use the VEP-preferred (canonical) isoform
-    maf_effect <- df |>
-      dplyr::filter(.data[["SYMBOL"]] == maf_gene, .data[["CANONICAL"]] == TRUE) |>
-      dplyr::pull(Consequence) |>
-      utils::head(n=1)
+    maf_effect <- df |> dplyr::filter(.data[["SYMBOL"]] == maf_gene, .data[["CANONICAL"]] == TRUE) |> dplyr::pull(Consequence) |> utils::head(n=1)
 
     # If that gene has no VEP-preferred isoform either, then choose the worst affected user-preferred isoform with a gene symbol
     # <not implemented yet>
@@ -205,8 +197,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
 
   # Create Final MAF data.frame
   # from a mix of the list and the original variant-level vcf data.frame
-  df_final <- df_vcf_somatic |>
-    dplyr::left_join(maflike_df, by = "variant_id")
+  df_final <- df_vcf_somatic |> dplyr::left_join(maflike_df, by = "variant_id")
 
   if(verbose) cli::cli_alert_success("{.strong vcf2df successful}")
 
