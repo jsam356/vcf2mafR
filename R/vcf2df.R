@@ -78,7 +78,7 @@ vcf2df <- function(vcf, tumor_id = vcf_tumor_id, normal_id = vcf_normal_id, vcf_
   df_vcf[["variant_id"]] <- paste0(df_vcf[["chr"]], ":", df_vcf[["pos"]], " ", df_vcf[["ref"]], ">", df_vcf[["alt"]])
 
   # Add a column differentiating Tumours from Normals
-  df_vcf <- df_vcf |>
+  #df_vcf <- df_vcf |>
     dplyr::mutate(sample_type = dplyr::case_when(
       sample == vcf_tumor_id ~ "Somatic",
       sample == vcf_normal_id ~ "Normal",
